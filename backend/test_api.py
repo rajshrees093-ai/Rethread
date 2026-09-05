@@ -78,6 +78,32 @@ def test_chat():
     assert len(data["reply"]) > 20
     print("[PASS] Chat assistant passed:", data["reply"][:60] + "...")
 
+def test_auth_login():
+    payload = {
+        "email": "demo@rethread.org",
+        "password": "password123"
+    }
+    response = client.post("/api/auth/login", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["user"]["email"] == "demo@rethread.org"
+    print("[PASS] Auth login test passed for demo account:", data["user"]["name"])
+
+def test_auth_signup():
+    payload = {
+        "name": "Sarah Jenkins",
+        "email": "sarah.jenkins@example.com",
+        "password": "secretPassword456",
+        "interest": "Mending & Repairs"
+    }
+    response = client.post("/api/auth/signup", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["user"]["name"] == "Sarah Jenkins"
+    print("[PASS] Auth signup test passed for new user:", data["user"]["name"])
+
 if __name__ == "__main__":
     print("--- Running ReThread API Verification Suite ---")
     test_health()
@@ -86,4 +112,6 @@ if __name__ == "__main__":
     test_analyze_upcycle()
     test_upcycle_ideas()
     test_chat()
-    print("--- All 6 Verification Tests Passed Successfully! ---")
+    test_auth_login()
+    test_auth_signup()
+    print("--- All 8 Verification Tests Passed Successfully! ---")
