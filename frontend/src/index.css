@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #EAE6DF;
+    color: #1F2E24;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+}
+
+/* 
+  Soft Atmospheric Bokeh Botanical Background 
+  Accurately recreating the warm cream & out-of-focus sage leaves from the reference image
+*/
+.rethread-bg {
+  background-color: #ECE7E0;
+  position: relative;
+  min-height: 100vh;
+}
+
+.rethread-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: 
+    radial-gradient(circle at 92% 18%, rgba(120, 148, 122, 0.45) 0%, transparent 42%),
+    radial-gradient(circle at 6% 30%, rgba(135, 160, 138, 0.35) 0%, transparent 38%),
+    radial-gradient(circle at 95% 85%, rgba(105, 138, 110, 0.50) 0%, transparent 45%),
+    radial-gradient(circle at 8% 85%, rgba(145, 168, 148, 0.38) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(250, 248, 242, 0.75) 0%, rgba(236, 231, 224, 0.6) 100%);
+  background-attachment: fixed;
+}
+
+/* Organic Soft Botanical Silhouettes on edges */
+.rethread-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    radial-gradient(ellipse 450px 600px at 98% 30%, rgba(95, 125, 100, 0.25) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 500px at 2% 70%, rgba(110, 140, 115, 0.20) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 500px at 95% 90%, rgba(75, 105, 80, 0.30) 0%, transparent 70%);
+  filter: blur(40px);
+}
+
+/* True Glassmorphism Styling matching the mockup */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 12px 36px -4px rgba(45, 70, 50, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 30px -4px rgba(40, 65, 45, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 40px -4px rgba(40, 65, 45, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+  transform: translateY(-2px);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.90);
+  box-shadow: 0 4px 16px -2px rgba(40, 65, 45, 0.05);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(130, 155, 135, 0.30);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: #527557;
+  box-shadow: 0 0 0 3px rgba(82, 117, 87, 0.16);
+  outline: none;
+}
+
+/* Animations */
+@keyframes pulse-halo {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+
+.animate-halo {
+  animation: pulse-halo 5s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(110, 140, 115, 0.35);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(82, 117, 87, 0.6);
+}
