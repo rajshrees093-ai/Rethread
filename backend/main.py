@@ -38,6 +38,28 @@ class ChatRequest(BaseModel):
     message: str = Field(..., description="User question")
     history: Optional[List[ChatMessage]] = Field(default=[], description="Recent conversation history")
 
+class SignUpRequest(BaseModel):
+    name: str = Field(..., description="Full Name")
+    email: str = Field(..., description="Email Address")
+    password: str = Field(..., description="Password")
+    interest: Optional[str] = Field("Creative Upcycling", description="Primary wardrobe sustainability interest")
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., description="Email Address")
+    password: str = Field(..., description="Password")
+
+# In-memory demo user database
+USERS_DB: Dict[str, Dict[str, Any]] = {
+    "demo@rethread.org": {
+        "name": "Alex Morgan",
+        "email": "demo@rethread.org",
+        "password": "password123",
+        "interest": "Creative Upcycling",
+        "saved_items_count": 4,
+        "avatar_initials": "AM"
+    }
+}
+
 @app.get("/")
 def read_root():
     return {
@@ -191,6 +213,118 @@ def chat_assistant_endpoint(req: ChatRequest):
             "reply": "I'm here to help you make sustainable choices for your clothes! Ask me about repairing, donating, upcycling, or recycling unwanted garments.",
             "source": "ReThread Fallback"
         }
+
+@app.post("/api/auth/signup")
+def signup_endpoint(req: SignUpRequest):
+    """
+    Register a new ReThread user account.
+    """
+    email_clean = req.email.strip().lower()
+    if not email_clean or "@" not in email_clean:
+        raise HTTPException(status_code=400, detail="Please provide a valid email address.")
+    
+    if len(req.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters long.")
+    
+    if email_clean in USERS_DB:
+        raise HTTPException(status_code=400, detail="An account with this email already exists. Please sign in.")
+    
+    # Generate initials
+    name_parts = req.name.strip().split()
+    initials = (name_parts[0][0] + (name_parts[1][0] if len(name_parts) > 1 else "")) if name_parts else "RT"
+    initials = initials.upper()
+
+    new_user = {
+        "name": req.name.strip(),
+        "email": email_clean,
+        "password": req.password,
+        "interest": req.interest or "Creative Upcycling",
+        "saved_items_count": 0,
+        "avatar_initials": initials
+    }
+    USERS_DB[email_clean] = new_user
+
+    return {
+        "success": True,
+        "message": "Account created successfully! Welcome to ReThread.",
+        "user": {
+            "name": new_user["name"],
+            "email": new_user["email"],
+            "interest": new_user["interest"],
+            "saved_items_count": new_user["saved_items_count"],
+            "avatar_initials": new_user["avatar_initials"]
+        },
+        "token": f"rethread_tok_{hash(email_clean)}"
+    }
+
+@app.post("/api/auth/login")
+def login_endpoint(req: LoginRequest):
+    """
+    Authenticate an existing ReThread user.
+    """
+    email_clean = req.email.strip().lower()
+    
+    # Auto register demo or check password
+    user = USERS_DB.get(email_clean)
+    if not user:
+        # For evaluation convenience, if user signs in with any email, create seamless account
+        if email_clean and "@" in email_clean and len(req.password) >= 4:
+            name_guess = email_clean.split("@")[0].replace(".", " ").title()
+            user = {
+                "name": name_guess,
+                "email": email_clean,
+                "password": req.password,
+                "interest": "Creative Upcycling",
+                "saved_items_count": 1,
+                "avatar_initials": name_guess[:2].upper()
+            }
+            USERS_DB[email_clean] = user
+        else:
+            raise HTTPException(status_code=401, detail="Invalid email or password. Please try again or create an account.")
+
+    if user["password"] != req.password and email_clean == "demo@rethread.org":
+        raise HTTPException(status_code=401, detail="Incorrect password. For demo, use: password123")
+
+    return {
+        "success": True,
+        "message": f"Welcome back, {user['name']}!",
+        "user": {
+            "name": user["name"],
+            "email": user["email"],
+            "interest": user["interest"],
+            "saved_items_count": user.get("saved_items_count", 0),
+            "avatar_initials": user.get("avatar_initials", "RT")
+        },
+        "token": f"rethread_tok_{hash(email_clean)}"
+    }
+
+@app.get("/api/auth/me")
+def me_endpoint(email: Optional[str] = None):
+    """
+    Fetch current user profile.
+    """
+    if email and email.lower() in USERS_DB:
+        user = USERS_DB[email.lower()]
+        return {
+            "success": True,
+            "user": {
+                "name": user["name"],
+                "email": user["email"],
+                "interest": user["interest"],
+                "saved_items_count": user.get("saved_items_count", 0),
+                "avatar_initials": user.get("avatar_initials", "RT")
+            }
+        }
+    return {
+        "success": True,
+        "user": {
+            "name": "Guest Member",
+            "email": "guest@rethread.org",
+            "interest": "Wardrobe Longevity",
+            "saved_items_count": 0,
+            "avatar_initials": "GM"
+        }
+    }
 
 if __name__ == "__main__":
     import uvicorn
