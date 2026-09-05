@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AssistantWidget from './components/AssistantWidget';
@@ -11,12 +11,40 @@ import UpcyclingPage from './pages/UpcyclingPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import ImpactPage from './pages/ImpactPage';
 import AboutPage from './pages/AboutPage';
+import AuthPage from './pages/AuthPage';
 
 export default function App() {
   const [activePage, setActivePage] = useState('home');
   const [analysisResult, setAnalysisResult] = useState(null);
   const [uploadedImagePreview, setUploadedImagePreview] = useState(null);
   const [quickStartPreset, setQuickStartPreset] = useState(null);
+
+  // User State
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('rethread_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const handleAuthSuccess = (userData) => {
+    setUser(userData);
+    try {
+      localStorage.setItem('rethread_user', JSON.stringify(userData));
+    } catch (e) {}
+    setActivePage('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+    try {
+      localStorage.removeItem('rethread_user');
+    } catch (e) {}
+    setActivePage('home');
+  };
 
   const handleAnalysisComplete = (resultData, imagePreview) => {
     setAnalysisResult(resultData);
@@ -54,7 +82,12 @@ export default function App() {
       
       {/* Floating Glass Navbar */}
       <div className="relative z-40">
-        <Navbar activePage={activePage} setActivePage={setActivePage} />
+        <Navbar
+          activePage={activePage}
+          setActivePage={setActivePage}
+          user={user}
+          onSignOut={handleSignOut}
+        />
       </div>
 
       {/* Main Interactive Content View */}
@@ -64,6 +97,13 @@ export default function App() {
             setActivePage(page);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }} />
+        )}
+
+        {activePage === 'auth' && (
+          <AuthPage
+            onAuthSuccess={handleAuthSuccess}
+            onBackToHome={() => setActivePage('home')}
+          />
         )}
 
         {activePage === 'home' && (
@@ -117,7 +157,7 @@ export default function App() {
         <AssistantWidget />
       </div>
 
-      {/* Streamlined Clean Footer (Sustainability Alignment block removed) */}
+      {/* Streamlined Clean Footer */}
       <div className="relative z-20">
         <Footer setActivePage={setActivePage} />
       </div>

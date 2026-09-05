@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Menu, X, LayoutGrid } from 'lucide-react';
+import { Menu, X, LayoutGrid, User, LogOut, Sparkles, ChevronDown } from 'lucide-react';
 
-export default function Navbar({ activePage, setActivePage }) {
+export default function Navbar({ activePage, setActivePage, user, onSignOut }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const navLinks = [
     { id: 'home', label: 'Home' },
@@ -15,12 +16,13 @@ export default function Navbar({ activePage, setActivePage }) {
   const handleNavClick = (pageId) => {
     setActivePage(pageId);
     setMobileMenuOpen(false);
+    setUserDropdownOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <header className="sticky top-0 z-50 w-full px-4 sm:px-8 pt-4 pb-2">
-      <nav className="max-w-6xl mx-auto glass-panel rounded-full px-6 py-3 flex items-center justify-between transition-all duration-300">
+      <nav className="max-w-6xl mx-auto glass-panel rounded-full px-5 sm:px-6 py-3 flex items-center justify-between transition-all duration-300">
         
         {/* Brand Logo matching the reference icon */}
         <button
@@ -71,8 +73,10 @@ export default function Navbar({ activePage, setActivePage }) {
           })}
         </div>
 
-        {/* Right CTA Button & Gallery Toggle */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Right CTA Button, Design Board & User Profile / Login */}
+        <div className="hidden md:flex items-center gap-2.5">
+          
+          {/* Design Board overview button */}
           <button
             onClick={() => handleNavClick(activePage === 'overview' ? 'home' : 'overview')}
             className={`p-2 rounded-full transition-all text-xs flex items-center gap-1.5 font-semibold ${
@@ -86,6 +90,74 @@ export default function Navbar({ activePage, setActivePage }) {
             <span className="text-[11px] pr-1">Design Board</span>
           </button>
 
+          {/* User Profile dropdown or Sign In button */}
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full glass-pill bg-white/80 hover:bg-white border border-white shadow-subtle transition-all"
+              >
+                <div className="w-6 h-6 rounded-full bg-[#527557] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+                  {user.avatar_initials || 'RT'}
+                </div>
+                <span className="text-xs font-semibold text-[#1F2E24] max-w-[90px] truncate">
+                  {user.name?.split(' ')[0]}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-[#5A6E60]" />
+              </button>
+
+              {/* User Dropdown */}
+              {userDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 glass-panel rounded-2xl p-3 shadow-lg border border-white/95 text-left animate-fade-in z-50 bg-white/95">
+                  <div className="pb-2 mb-2 border-b border-[#1F2E24]/10">
+                    <p className="text-xs font-bold text-[#1F2E24] truncate">{user.name}</p>
+                    <p className="text-[10px] text-[#5A6E60] truncate">{user.email}</p>
+                    {user.interest && (
+                      <span className="inline-block mt-1 text-[9px] font-semibold bg-[#E8F0EA] text-[#344A37] px-2 py-0.5 rounded-full">
+                        {user.interest}
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      handleNavClick('analyze');
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-[#EAE5DC]/60 text-xs text-[#1F2E24] transition-colors flex items-center gap-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-[#527557]" />
+                    <span>My Wardrobe Analysis</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      if (onSignOut) onSignOut();
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-rose-50 text-xs text-rose-700 transition-colors flex items-center gap-2 mt-1"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => handleNavClick('auth')}
+              className={`px-3.5 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                activePage === 'auth'
+                  ? 'bg-white text-[#1F2E24] shadow-sm'
+                  : 'glass-pill bg-white/70 hover:bg-white text-[#1F2E24]'
+              }`}
+            >
+              <User className="w-3.5 h-3.5 text-[#527557]" />
+              <span>Sign In</span>
+            </button>
+          )}
+
+          {/* Analyze Clothing CTA button */}
           <button
             onClick={() => handleNavClick('analyze')}
             className="px-5 py-2.5 rounded-full bg-[#527557] hover:bg-[#436247] text-white text-sm font-medium shadow-sm transition-all duration-200 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
@@ -94,7 +166,7 @@ export default function Navbar({ activePage, setActivePage }) {
           </button>
         </div>
 
-        {/* Mobile Hamburger */}
+        {/* Mobile Hamburger & Actions */}
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={() => handleNavClick(activePage === 'overview' ? 'home' : 'overview')}
@@ -102,6 +174,14 @@ export default function Navbar({ activePage, setActivePage }) {
             aria-label="Toggle Design Board"
           >
             <LayoutGrid className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => handleNavClick('auth')}
+            className="p-2 rounded-full glass-pill bg-white/70 text-[#1F2E24]"
+            aria-label="Sign In / Profile"
+          >
+            <User className="w-4 h-4" />
           </button>
 
           <button
@@ -118,6 +198,25 @@ export default function Navbar({ activePage, setActivePage }) {
       {mobileMenuOpen && (
         <div className="md:hidden mt-2 max-w-6xl mx-auto glass-panel rounded-3xl p-5 shadow-lg border border-white/80 transition-all">
           <div className="flex flex-col gap-2">
+            
+            {user && (
+              <div className="p-3 mb-1 rounded-2xl bg-white/80 border border-white flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-[#1F2E24]">{user.name}</p>
+                  <p className="text-[10px] text-[#5A6E60]">{user.email}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (onSignOut) onSignOut();
+                  }}
+                  className="p-1.5 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
             {navLinks.map((link) => (
               <button
                 key={link.id}
@@ -131,6 +230,16 @@ export default function Navbar({ activePage, setActivePage }) {
                 {link.label}
               </button>
             ))}
+
+            {!user && (
+              <button
+                onClick={() => handleNavClick('auth')}
+                className="text-left px-4 py-2.5 rounded-2xl text-sm font-semibold text-[#527557] bg-white/70 hover:bg-white"
+              >
+                Sign In / Create Account →
+              </button>
+            )}
+
             <div className="pt-2 mt-2 border-t border-[#1F2E24]/10">
               <button
                 onClick={() => handleNavClick('analyze')}
