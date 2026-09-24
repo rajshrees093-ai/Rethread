@@ -295,7 +295,7 @@ def login_endpoint(req: LoginRequest):
             "saved_items_count": user.get("saved_items_count", 0),
             "avatar_initials": user.get("avatar_initials", "RT")
         },
-        "token": f"rethread_tok_{hash(email_clean)}"
+        
     }
 
 @app.get("/api/auth/me")
