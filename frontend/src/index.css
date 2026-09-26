@@ -10,7 +10,10 @@
     overflow-x: hidden;
   }
 
- 
+  h1, h2, h3, .font-editorial {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
 }
 
 /* 
