@@ -118,15 +118,4 @@
   height: 6px;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
 
-::-webkit-scrollbar-thumb {
-  background: rgba(110, 140, 115, 0.35);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(82, 117, 87, 0.6);
-}
