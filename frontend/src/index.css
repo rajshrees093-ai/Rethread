@@ -108,9 +108,7 @@
   50% { transform: scale(1.04); opacity: 1; }
 }
 
-.animate-halo {
-  animation: pulse-halo 5s ease-in-out infinite;
-}
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
